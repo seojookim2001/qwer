@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>로블마켓 (Roble Market)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif; }
+    body { background: #f5f7fa; color: #1e293b; }
+    .url-bar { background: #0f172a; color: #cbd5e1; padding: 10px 20px; font-size: 13px; display: flex; align-items: center; gap: 10px; }
+    .url-box { background: #1e293b; padding: 6px 14px; border-radius: 999px; flex: 1; max-width: 640px; color: #38bdf8; font-weight: 500; }
+    header { background: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .logo { font-size: 20px; font-weight: 800; color: #2563eb; cursor: pointer; text-decoration: none; }
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+    button { cursor: pointer; border: none; border-radius: 8px; padding: 9px 14px; font-size: 14px; font-weight: 600; transition: 0.15s; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-outline { background: #fff; color: #334155; border: 1px solid #cbd5e1; }
+    .btn-outline:hover { background: #f8fafc; }
+    .container { max-width: 1040px; margin: 28px auto; padding: 0 20px; }
+    .auth-card { max-width: 440px; margin: 24px auto; background: #fff; padding: 28px; border-radius: 14px; box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06); }
+    .auth-card h2 { margin-bottom: 8px; font-size: 22px; }
+    .auth-card p.desc { color: #64748b; font-size: 14px; margin-bottom: 20px; }
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #334155; }
+    input, select { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; margin-top: 20px; }
+    .card { background: #fff; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; justify-content: space-between; }
+    .badge { display: inline-block; font-size: 12px; background: #eff6ff; color: #2563eb; padding: 4px 8px; border-radius: 6px; font-weight: 600; margin-bottom: 8px; }
+    .price { font-size: 18px; font-weight: 700; color: #0f172a; margin: 8px 0; }
+    .meta { font-size: 12px; color: #64748b; }
+    .hidden { display: none; }
+    .msg { font-size: 13px; margin-top: 10px; color: #dc2626; }
+  </style>
+</head>
+<body>
+  <div class="url-bar">
+    <span>ROBLE MARKET</span>
+    <div class="url-box" id="addressDisplay">https://www.roble-market.com/</div>
+  </div>
+
+  <header>
+    <div class="logo" onclick="navigate('market')">로블마켓 · Roble Market</div>
+    <div class="nav-actions" id="navActions"></div>
+  </header>
+
+  <main class="container">
+    <!-- 메인 마켓 화면 -->
+    <section id="view-market">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+        <div>
+          <h1 style="font-size:24px;">로블마켓 둘러보기</h1>
+          <p class="meta">실거래·중고·커스텀 아이템 마켓 (roble-market)</p>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <input type="text" id="searchInput" placeholder="상품 검색..." oninput="renderProducts()" style="width:220px;" />
+          <select id="categoryFilter" onchange="renderProducts()" style="width:140px;">
+            <option value="전체">전체 카테고리</option>
+            <option value="디지털">디지털</option>
+            <option value="패션">패션</option>
+            <option value="생활">생활</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid" id="productGrid"></div>
+    </section>
+
+    <!-- 로그인 전용 화면 -->
+    <section id="view-login" class="auth-card hidden">
+      <h2>로그인</h2>
+      <p class="desc">로블마켓 계정으로 로그인하세요.</p>
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="loginId">아이디</label>
+          <input type="text" id="loginId" required placeholder="아이디 입력" />
+        </div>
+        <div class="form-group">
+          <label for="loginPw">비밀번호</label>
+          <input type="password" id="loginPw" required placeholder="비밀번호 입력" />
+        </div>
+        <button type="submit" class="btn-primary" style="width:100%;">로그인하기</button>
+        <p class="msg" id="loginMsg"></p>
+      </form>
+      <div style="margin-top:16px; font-size:13px; color:#64748b; text-align:center;">
+        계정이 없으신가요? <a href="#" onclick="navigate('signup'); return false;" style="color:#2563eb; font-weight:600;">회원가입</a>
+      </div>
+    </section>
+
+    <!-- 회원가입 전용 화면 -->
+    <section id="view-signup" class="auth-card hidden">
+      <h2>회원가입</h2>
+      <p class="desc">로블마켓 이용을 위한 기본 정보를 입력하세요.</p>
+      <form onsubmit="handleSignup(event)">
+        <div class="form-group">
+          <label for="signupId">아이디</label>
+          <input type="text" id="signupId" required placeholder="예: roble_user" />
+        </div>
+        <div class="form-group">
+          <label for="signupPw">비밀번호</label>
+          <input type="password" id="signupPw" required placeholder="6자 이상 입력" />
+        </div>
+        <div class="form-group">
+          <label for="signupName">이름</label>
+          <input type="text" id="signupName" required placeholder="실명 입력" />
+        </div>
+        <div class="form-group">
+          <label for="signupNickname">닉네임</label>
+          <input type="text" id="signupNickname" required placeholder="마켓에서 사용할 닉네임" />
+        </div>
+        <div class="form-group">
+          <label for="signupEmail">이메일</label>
+          <input type="email" id="signupEmail" required placeholder="name@example.com" />
+        </div>
+        <div class="form-group">
+          <label for="signupPhone">휴대폰 번호</label>
+          <input type="tel" id="signupPhone" required placeholder="010-0000-0000" />
+        </div>
+        <button type="submit" class="btn-primary" style="width:100%;">가입 완료</button>
+        <p class="msg" id="signupMsg"></p>
+      </form>
+      <div style="margin-top:16px; font-size:13px; color:#64748b; text-align:center;">
+        이미 계정이 있으신가요? <a href="#" onclick="navigate('login'); return false;" style="color:#2563eb; font-weight:600;">로그인</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const DEFAULT_PRODUCTS = [
+      { id: 1, title: "로블 커스텀 무선 키보드", category: "디지털", price: 68000, seller: "로블러" },
+      { id: 2, title: "미니멀 캔버스 크로스백", category: "패션", price: 34000, seller: "마켓지기" },
+      { id: 3, title: "원목 데스크 스탠드", category: "생활", price: 42000, seller: "홈리빙" },
+      { id: 4, title: "휴대용 블루투스 스피커", category: "디지털", price: 51000, seller: "사운드랩" }
+    ];
+
+    function getUsers() {
+      return JSON.parse(localStorage.getItem("roble_users") || "[]");
+    }
+    function setUsers(users) {
+      localStorage.setItem("roble_users", JSON.stringify(users));
+    }
+    function getCurrentUser() {
+      return JSON.parse(localStorage.getItem("roble_current_user") || "null");
+    }
+    function setCurrentUser(user) {
+      if (user) localStorage.setItem("roble_current_user", JSON.stringify(user));
+      else localStorage.removeItem("roble_current_user");
+    }
+
+    function navigate(page) {
+      document.getElementById("view-market").classList.toggle("hidden", page !== "market");
+      document.getElementById("view-login").classList.toggle("hidden", page !== "login");
+      document.getElementById("view-signup").classList.toggle("hidden", page !== "signup");
+
+      const pathMap = {
+        market: "https://www.roble-market.com/",
+        login: "https://www.roble-market.com/auth/login",
+        signup: "https://www.roble-market.com/auth/signup"
+      };
+      document.getElementById("addressDisplay").textContent = pathMap[page] || "https://www.roble-market.com/";
+      renderNav();
+      if (page === "market") renderProducts();
+    }
+
+    function renderNav() {
+      const nav = document.getElementById("navActions");
+      const user = getCurrentUser();
+      if (user) {
+        nav.innerHTML = `
+          <span style="font-size:14px; font-weight:600;">${user.nickname}님</span>
+          <button class="btn-outline" onclick="handleLogout()">로그아웃</button>
+        `;
+      } else {
+        nav.innerHTML = `
+          <button class="btn-outline" onclick="navigate('login')">로그인</button>
+          <button class="btn-primary" onclick="navigate('signup')">회원가입</button>
+        `;
+      }
+    }
+
+    function handleSignup(e) {
+      e.preventDefault();
+      const id = document.getElementById("signupId").value.trim();
+      const pw = document.getElementById("signupPw").value;
+      const name = document.getElementById("signupName").value.trim();
+      const nickname = document.getElementById("signupNickname").value.trim();
+      const email = document.getElementById("signupEmail").value.trim();
+      const phone = document.getElementById("signupPhone").value.trim();
+      const msgEl = document.getElementById("signupMsg");
+
+      const users = getUsers();
+      if (users.some(u => u.id === id)) {
+        msgEl.textContent = "이미 사용 중인 아이디입니다.";
+        return;
+      }
+
+      const newUser = { id, pw, name, nickname, email, phone };
+      users.push(newUser);
+      setUsers(users);
+      setCurrentUser(newUser);
+      msgEl.textContent = "";
+      navigate("market");
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const id = document.getElementById("loginId").value.trim();
+      const pw = document.getElementById("loginPw").value;
+      const msgEl = document.getElementById("loginMsg");
+
+      const found = getUsers().find(u => u.id === id && u.pw === pw);
+      if (!found) {
+        msgEl.textContent = "아이디 또는 비밀번호가 일치하지 않습니다.";
+        return;
+      }
+
+      setCurrentUser(found);
+      msgEl.textContent = "";
+      navigate("market");
+    }
+
+    function handleLogout() {
+      setCurrentUser(null);
+      renderNav();
+    }
+
+    function renderProducts() {
+      const q = (document.getElementById("searchInput")?.value || "").toLowerCase();
+      const cat = document.getElementById("categoryFilter")?.value || "전체";
+      const grid = document.getElementById("productGrid");
+
+      const filtered = DEFAULT_PRODUCTS.filter(p => {
+        const matchCat = cat === "전체" || p.category === cat;
+        const matchText = p.title.toLowerCase().includes(q) || p.seller.toLowerCase().includes(q);
+        return matchCat && matchText;
+      });
+
+      grid.innerHTML = filtered.map(p => `
+        <div class="card">
+          <div>
+            <span class="badge">${p.category}</span>
+            <h3 style="font-size:16px;">${p.title}</h3>
+            <div class="price">${p.price.toLocaleString()}원</div>
+          </div>
+          <div class="meta">판매자: ${p.seller}</div>
+        </div>
+      `).join("");
+    }
+
+    renderNav();
+    renderProducts();
+  </script>
+</body>
+</html>
