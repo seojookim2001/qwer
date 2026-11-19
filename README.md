@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>제없알 마켓 (Roble Market)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #f5f7fa; color: #1e293b; }
+    .url-bar { background: #0f172a; color: #38bdf8; padding: 8px 16px; font-size: 12px; font-weight: 600; }
+    header { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .logo { font-size: 19px; font-weight: 800; color: #2563eb; cursor: pointer; }
+    button { cursor: pointer; border: none; border-radius: 7px; padding: 7px 12px; font-size: 13px; font-weight: 600; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-accent { background: #059669; color: #fff; }
+    .btn-danger { background: #dc2626; color: #fff; }
+    .btn-outline { background: #fff; color: #334155; border: 1px solid #cbd5e1; }
+    .btn-disabled { background: #e2e8f0; color: #64748b; cursor: default; }
+    .container { max-width: 1020px; margin: 20px auto; padding: 0 16px; }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+    input, select, textarea { padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 7px; font-size: 13px; }
+    .form-card { max-width: 440px; margin: 20px auto; background: #fff; padding: 22px; border-radius: 12px; border: 1px solid #e2e8f0; }
+    .form-card input, .form-card select, .form-card textarea { width: 100%; margin-top: 4px; margin-bottom: 12px; }
+    .cat-bar { margin-top: 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 12px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .cat-btn { background: #f1f5f9; color: #334155; padding: 5px 10px; font-size: 12px; }
+    .cat-btn.active { background: #2563eb; color: #fff; }
+    .kit-wrap { position: relative; display: inline-block; }
+    .kit-sub { display: none; position: absolute; top: 100%; left: 0; padding-top: 4px; z-index: 20; min-width: 100px; }
+    .kit-wrap:hover .kit-sub { display: block; }
+    .kit-sub-box { background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; display: flex; flex-direction: column; gap: 3px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(235px, 1fr)); gap: 14px; margin-top: 14px; }
+    .card { background: #fff; border-radius: 10px; padding: 14px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; justify-content: space-between; }
+    .badge { font-size: 11px; padding: 3px 7px; border-radius: 5px; font-weight: 600; background: #eff6ff; color: #2563eb; }
+    .badge-sell { background: #ecfdf5; color: #059669; }
+    .badge-buy { background: #fef3c7; color: #d97706; }
+    .badge-kind { background: #f3e8ff; color: #7c3aed; }
+    .badge-nego { background: #e0f2fe; color: #0369a1; }
+    .tag-line { font-size: 12px; color: #2563eb; font-weight: 600; margin-bottom: 6px; }
+    .price { font-size: 16px; font-weight: 700; color: #059669; margin: 6px 0; }
+    .desc-box { font-size: 12px; color: #475569; margin-bottom: 10px; line-height: 1.4; cursor: pointer; }
+    .more-link { color: #2563eb; font-weight: 600; margin-left: 4px; font-size: 11px; }
+    .meta { font-size: 12px; color: #64748b; border-top: 1px solid #f1f5f9; padding-top: 8px; display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .hidden { display: none; }
+    .check-row { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; font-size: 13px; font-weight: 600; }
+    .check-row input { width: auto; margin: 0; }
+    .ai-box { background: #f0f9ff; border: 1px solid #bae6fd; color: #0c4a6e; padding: 10px 12px; border-radius: 8px; font-size: 12px; margin-bottom: 12px; line-height: 1.45; }
+    .chat-box { max-width: 580px; margin: 14px auto; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; height: 480px; overflow: hidden; }
+    .chat-head { padding: 12px 16px; background: #0f172a; color: #fff; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .chat-sub { background: #eff6ff; padding: 8px 16px; font-size: 12px; color: #1e40af; display: flex; justify-content: space-between; }
+    .chat-logs { flex: 1; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; background: #f8fafc; }
+    .msg-row { max-width: 75%; display: flex; flex-direction: column; font-size: 13px; }
+    .msg-row.me { align-self: flex-end; align-items: flex-end; }
+    .msg-row.other { align-self: flex-start; }
+    .msg-row.sys { align-self: center; background: #e2e8f0; padding: 4px 10px; border-radius: 99px; font-size: 11px; color: #475569; }
+    .bubble { padding: 8px 12px; border-radius: 10px; margin-top: 2px; }
+    .me .bubble { background: #2563eb; color: #fff; }
+    .other .bubble { background: #fff; border: 1px solid #e2e8f0; }
+    .chat-form { padding: 10px; border-top: 1px solid #e2e8f0; display: flex; gap: 6px; }
+    .chat-form input { flex: 1; }
+  </style>
+</head>
+<body>
+  <div class="url-bar" id="urlBar">https://www.roble-market.com/</div>
+  <header>
+    <div class="logo" onclick="go('market')">제없알 마켓</div>
+    <div id="nav" style="display:flex; gap:8px; align-items:center;"></div>
+  </header>
+
+  <main class="container">
+    <!-- 메인 마켓 -->
+    <section id="v-market">
+      <div class="toolbar">
+        <div>
+          <strong style="font-size:18px;">제없알 마켓</strong>
+          <span style="font-size:12px; color:#64748b; margin-left:6px;">화폐: 강방 · 설명 클릭 시 전체보기</span>
+        </div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <input id="qInput" placeholder="검색 / #해시태그..." oninput="render()" style="width:145px;" />
+          <select id="fTrade" onchange="render()">
+            <option value="전체">판매 / 구매</option>
+            <option value="판매">판매</option>
+            <option value="구매">구매</option>
+          </select>
+          <select id="fGame" onchange="render()">
+            <option value="전체">제없알 / 딴 겜</option>
+            <option value="제없알">제없알</option>
+            <option value="딴 겜">딴 겜</option>
+          </select>
+          <button class="btn-accent" onclick="openAdd()">+ 품목 추가</button>
+        </div>
+      </div>
+
+      <div class="cat-bar">
+        <span style="font-size:12px; font-weight:700; color:#64748b;">품목:</span>
+        <button class="cat-btn active" data-k="전체" onclick="setKind('전체', null)">전체</button>
+        <div class="kit-wrap">
+          <button class="cat-btn" id="kitBtn" onclick="setKind('키트', null)">키트 ▾</button>
+          <div class="kit-sub">
+            <div class="kit-sub-box">
+              <button class="cat-btn" style="text-align:left;" onclick="setKind('키트', '검')">검</button>
+              <button class="cat-btn" style="text-align:left;" onclick="setKind('키트', '유물')">유물</button>
+            </div>
+          </div>
+        </div>
+        <button class="cat-btn" data-k="검" onclick="setKind('검', null)">검</button>
+        <button class="cat-btn" data-k="전리품" onclick="setKind('전리품', null)">전리품</button>
+        <button class="cat-btn" data-k="장신구" onclick="setKind('장신구', null)">장신구</button>
+        <button class="cat-btn" data-k="아이템" onclick="setKind('아이템', null)">아이템</button>
+      </div>
+
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <!-- 1:1 채팅 -->
+    <section id="v-chat" class="hidden">
+      <div class="chat-box">
+        <div class="chat-head">
+          <div><strong id="cTitle"></strong> <span id="cPrice" style="color:#38bdf8; font-size:12px;"></span></div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-accent" style="padding:4px 8px; font-size:11px;" onclick="completeTrade()">거래 완료</button>
+            <button class="btn-outline" style="padding:4px 8px; font-size:11px;" onclick="go('chats')">목록</button>
+            <button class="btn-outline" style="padding:4px 8px; font-size:11px;" onclick="go('market')">나가기</button>
+          </div>
+        </div>
+        <div class="chat-sub"><span>1:1 전용 (참여자 2명)</span><span id="cUsers"></span></div>
+        <div class="chat-logs" id="cLogs"></div>
+        <form class="chat-form" onsubmit="sendMsg(event)">
+          <input id="cInput" placeholder="메시지 입력..." required autocomplete="off" />
+          <button class="btn-primary">전송</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- 채팅 목록 -->
+    <section id="v-chats" class="hidden" style="max-width:580px; margin:0 auto;">
+      <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+        <h3>내 1:1 거래 채팅방</h3>
+        <button class="btn-outline" onclick="go('market')">돌아가기</button>
+      </div>
+      <div id="chatList" style="display:flex; flex-direction:column; gap:8px;"></div>
+    </section>
+
+    <!-- 품목 추가 -->
+    <section id="v-add" class="form-card hidden">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <h3>거래품목 추가</h3>
+        <button type="button" class="btn-outline" style="padding:4px 9px; font-size:12px;" onclick="askAiExample()">AI 예시</button>
+      </div>
+      <div id="aiExampleBox" class="ai-box hidden"></div>
+
+      <form onsubmit="addItem(event)">
+        <label>거래 구분</label>
+        <select id="aTrade" onchange="syncSellOptions()">
+          <option value="판매">판매</option>
+          <option value="구매">구매</option>
+        </select>
+
+        <label>게임 카테고리</label>
+        <select id="aGame"><option value="제없알">제없알</option><option value="딴 겜">딴 겜</option></select>
+
+        <label>품목 카테고리</label>
+        <select id="aKind" onchange="syncSellOptions()">
+          <option value="키트">키트</option>
+          <option value="검">검</option>
+          <option value="전리품">전리품</option>
+          <option value="장신구">장신구</option>
+          <option value="아이템">아이템</option>
+        </select>
+
+        <div id="aSubBox">
+          <label>키트 세부 분류</label>
+          <select id="aSub" onchange="syncSellOptions()">
+            <option value="검">검</option>
+            <option value="유물">유물</option>
+          </select>
+        </div>
+
+        <label>품목명</label>
+        <input id="aTitle" required placeholder="예: 심끝 100품 44강" />
+
+        <label>가격 (강방)</label>
+        <input id="aPrice" type="number" min="1" required placeholder="670000" />
+
+        <!-- 판매일 때만 보이는 해시태그 & 체크리스트 -->
+        <div id="sellOnlyBox">
+          <label>해시태그 (판매 전용)</label>
+          <div id="aTagGuide" style="font-size:12px; color:#2563eb; margin-bottom:4px;">검 이름만 적어 주세요</div>
+          <input id="aTag" placeholder="예: #심끝" />
+
+          <label class="check-row">
+            <input type="checkbox" id="aNego" />
+            <span>네고 가능</span>
+          </label>
+        </div>
+
+        <label>설명</label>
+        <textarea id="aDesc" required placeholder="상세 내용을 입력하세요"></textarea>
+
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn-outline" style="flex:1;" onclick="go('market')">취소</button>
+          <button type="submit" class="btn-accent" style="flex:2;">등록</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- 로그인 -->
+    <section id="v-login" class="form-card hidden">
+      <h3 style="margin-bottom:12px;">로그인</h3>
+      <form onsubmit="login(event)">
+        <label>아이디</label><input id="lId" required />
+        <label>비밀번호</label><input id="lPw" type="password" required />
+        <button class="btn-primary" style="width:100%;">로그인</button>
+        <p id="lMsg" style="color:#dc2626; font-size:12px; margin-top:8px;"></p>
+      </form>
+      <p style="font-size:12px; margin-top:12px; text-align:center;">계정이 없나요? <a href="#" onclick="go('signup');return false;">회원가입</a></p>
+    </section>
+
+    <!-- 회원가입 -->
+    <section id="v-signup" class="form-card hidden">
+      <h3 style="margin-bottom:12px;">회원가입</h3>
+      <form onsubmit="signup(event)">
+        <label>아이디</label><input id="sId" required />
+        <label>비밀번호</label><input id="sPw" type="password" required />
+        <label>이름</label><input id="sName" required />
+        <label>닉네임</label><input id="sNick" required />
+        <label>이메일</label><input id="sEmail" type="email" required />
+        <label>휴대폰</label><input id="sPhone" required />
+        <button class="btn-primary" style="width:100%;">가입 완료</button>
+        <p id="sMsg" style="color:#dc2626; font-size:12px; margin-top:8px;"></p>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    const ADMIN = { id: "ganleeja", pw: "ganleeja1234", nickname: "관리자", isAdmin: true };
+    const INIT_ITEMS = [
+      { id: 1, trade: "판매", title: "심끝 100품 44강", game: "제없알", kind: "검", sub: null, price: 670000, tag: "#심끝", nego: true, desc: "제없알 판매 검 예시입니다. 클릭 시 전체보기 확인 가능.", seller: "제없알장인", sellerId: "sys1" },
+      { id: 2, trade: "판매", title: "밤낫 유물 키트 ㅍㅍ", game: "제없알", kind: "키트", sub: "유물", price: 50000, tag: "#밤낫", nego: false, desc: "제없알 판매 키트(유물) 예시입니다. 즉시 거래 가능합니다.", seller: "마켓지기", sellerId: "sys2" }
+    ];
+    const INIT_SALES = [
+      { tag: "#심끝", title: "심끝 100품 44강", price: 670000 },
+      { tag: "#밤낫", title: "밤낫 유물 키트 ㅍㅍ", price: 50000 }
+    ];
+
+    let curKind = "전체", curSub = null, roomId = null;
+    const expandedIds = new Set();
+
+    const get = (k, d) => JSON.parse(localStorage.getItem(k) || JSON.stringify(d));
+    const set = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+    const me = () => get("roble_current_user", null);
+    const isAdmin = u => u && (u.isAdmin || u.id === ADMIN.id);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+
+    function items() {
+      let list = get("jeobal_products_v4", null);
+      if (!list) { list = INIT_ITEMS; set("jeobal_products_v4", list); }
+      return list;
+    }
+
+    function sales() {
+      let list = get("jeobal_sales_v1", null);
+      if (!list) { list = INIT_SALES; set("jeobal_sales_v1", list); }
+      return list;
+    }
+
+    function getTagGuideText(kind, sub) {
+      if (kind === "키트") {
+        return sub === "유물" ? "유물 이름만 적어 주세요." : "검 이름만 적어 주세요.";
+      }
+      const map = {
+        "검": "검 이름만 적어 주세요",
+        "전리품": "전리품 이름만 적어 주세요",
+        "아이템": "아이템 이름만 적어 주세요",
+        "장신구": "장신구 이름만 적어 주세요"
+      };
+      return map[kind] || "품목 이름만 적어 주세요.";
+    }
+
+    function syncSellOptions() {
+      const trade = document.getElementById("aTrade").value;
+      const kind = document.getElementById("aKind").value;
+      const sub = document.getElementById("aSub").value;
+      const isSell = trade === "판매";
+      document.getElementById("aSubBox").classList.toggle("hidden", kind !== "키트");
+      document.getElementById("sellOnlyBox").classList.toggle("hidden", !isSell);
+      document.getElementById("aTagGuide").textContent = getTagGuideText(kind, sub);
+      if (!isSell) {
+        document.getElementById("aTag").value = "";
+        document.getElementById("aNego").checked = false;
+      }
+    }
+
+    function askAiExample() {
+      const box = document.getElementById("aiExampleBox");
+      const trade = document.getElementById("aTrade").value;
+      const kind = document.getElementById("aKind").value;
+      const sub = document.getElementById("aSub").value;
+      const guide = getTagGuideText(kind, sub);
+      box.classList.remove("hidden");
+      box.innerHTML = `<strong>AI 예시 안내:</strong><br>` +
+        `• <strong>검 예시:</strong> 제없알 / 판매 / 검 / 이름: 심끝 100품 44강 / 가격: 670,000 강방 / 해시태그: #심끝<br>` +
+        `• <strong>키트(유물) 예시:</strong> 제없알 / 판매 / 키트(유물) / 이름: 밤낫 유물 키트 ㅍㅍ / 가격: 50,000 강방 / 해시태그: #밤낫<br>` +
+        `• 현재 선택(${trade} · ${kind === "키트" ? `키트(${sub})` : kind}) 해시태그 안내: <strong>${guide}</strong>`;
+    }
+
+    function showRecentSale(tag) {
+      if (!tag) return;
+      const clean = tag.startsWith("#") ? tag : "#" + tag;
+      const found = sales().find(s => s.tag.toLowerCase() === clean.toLowerCase());
+      if (found) {
+        alert(`${clean} 최근 거래가: ${Number(found.price).toLocaleString()} 강방 (${found.title})`);
+      } else {
+        alert(`${clean} 품목의 최근 거래 완료 기록이 아직 없습니다.`);
+      }
+    }
+
+    function completeTrade() {
+      const u = me(), r = get("jeobal_chat_rooms_v2", {})[roomId];
+      if (!u || !r || !confirm("이 거래를 완료로 기록할까요?")) return;
+      const list = sales();
+      list.unshift({ tag: r.tag || "#거래완료", title: r.title, price: r.price });
+      set("jeobal_sales_v1", list);
+      alert(`거래 완료 기록됨: ${Number(r.price).toLocaleString()} 강방`);
+    }
+
+    function go(p, param) {
+      ["market","login","signup","add","chat","chats"].forEach(v => document.getElementById("v-"+v).classList.toggle("hidden", v !== p));
+      const urls = { market: "/", login: "/auth/login", signup: "/auth/signup", add: "/items/new", chats: "/chats", chat: "/chat/"+(param||"") };
+      document.getElementById("urlBar").textContent = "https://www.roble-market.com" + (urls[p] || "/");
+      renderNav();
+      if (p === "market") render();
+      if (p === "chats") renderChats();
+      if (p === "add") syncSellOptions();
+    }
+
+    function setKind(k, s) {
+      curKind = k; curSub = k === "키트" ? s : null;
+      document.querySelectorAll(".cat-btn[data-k]").forEach(b => b.classList.toggle("active", b.dataset.k === curKind && !curSub));
+      const kb = document.getElementById("kitBtn");
+      kb.classList.toggle("active", curKind === "키트");
+      kb.textContent = curKind === "키트" ? `키트(${curSub || "전체"}) ▾` : "키트 ▾";
+      render();
+    }
+
+    function toggleExpand(id) {
+      expandedIds.has(id) ? expandedIds.delete(id) : expandedIds.add(id);
+      render();
+    }
+
+    function delItem(id) {
+      if (!isAdmin(me()) || !confirm("이 품목을 삭제할까요?")) return;
+      set("jeobal_products_v4", items().filter(x => x.id !== id));
+      render();
+    }
+
+    function startChat(id) {
+      const u = me();
+      if (!u) { alert("로그인이 필요합니다."); return go("login"); }
+      const p = items().find(x => x.id === id);
+      if (!p || p.sellerId === u.id) return;
+      const buy = p.trade === "구매";
+      const sId = buy ? u.id : p.sellerId, sName = buy ? u.nickname : p.seller;
+      const bId = buy ? p.sellerId : u.id, bName = buy ? p.seller : u.nickname;
+      const rId = `item_${p.id}_${u.id}`;
+      const rooms = get("jeobal_chat_rooms_v2", {});
+      if (!rooms[rId]) {
+        rooms[rId] = { roomId: rId, title: p.title, price: p.price, tag: p.tag || "", sId, sName, bId, bName, users: [sId, bId], msgs: [{ sys: true, text: `판매자(${sName}) · 구매자(${bName}) 1:1 거래방` }] };
+        set("jeobal_chat_rooms_v2", rooms);
+      }
+      openChat(rId);
+    }
+
+    function openChat(rId) {
+      const u = me(), r = get("jeobal_chat_rooms_v2", {})[rId];
+      if (!u || !r || !r.users.includes(u.id)) return;
+      roomId = rId;
+      document.getElementById("cTitle").textContent = r.title;
+      document.getElementById("cPrice").textContent = `${Number(r.price).toLocaleString()} 강방`;
+      document.getElementById("cUsers").textContent = `판매: ${r.sName} / 구매: ${r.bName}`;
+      go("chat", rId);
+      renderMsgs();
+    }
+
+    function renderMsgs() {
+      const u = me(), r = get("jeobal_chat_rooms_v2", {})[roomId];
+      if (!u || !r) return;
+      const box = document.getElementById("cLogs");
+      box.innerHTML = r.msgs.map(m => m.sys
+        ? `<div class="msg-row sys">${esc(m.text)}</div>`
+        : `<div class="msg-row ${m.uid===u.id?"me":"other"}"><span style="font-size:11px;color:#64748b;">${esc(m.name)}</span><div class="bubble">${esc(m.text)}</div></div>`
+      ).join("");
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function sendMsg(e) {
+      e.preventDefault();
+      const u = me(), inp = document.getElementById("cInput"), t = inp.value.trim();
+      if (!u || !roomId || !t) return;
+      const rooms = get("jeobal_chat_rooms_v2", {});
+      rooms[roomId].msgs.push({ uid: u.id, name: u.nickname, text: t });
+      set("jeobal_chat_rooms_v2", rooms);
+      inp.value = "";
+      renderMsgs();
+    }
+
+    function renderChats() {
+      const u = me(), el = document.getElementById("chatList");
+      const list = Object.values(get("jeobal_chat_rooms_v2", {})).filter(r => u && r.users.includes(u.id));
+      el.innerHTML = list.length ? list.map(r => `
+        <div class="card" style="flex-direction:row; align-items:center; cursor:pointer;" onclick="openChat('${r.roomId}')">
+          <div><strong>${esc(r.title)}</strong> (${Number(r.price).toLocaleString()} 강방)<div style="font-size:12px;color:#64748b;">판매: ${esc(r.sName)} / 구매: ${esc(r.bName)}</div></div>
+          <button class="btn-primary">입장</button>
+        </div>`).join("") : `<p style="color:#64748b; font-size:13px;">진행 중인 1:1 채팅이 없습니다.</p>`;
+    }
+
+    function openAdd() { me() ? go("add") : (alert("로그인 후 등록 가능합니다."), go("login")); }
+
+    function addItem(e) {
+      e.preventDefault();
+      const u = me(); if (!u) return;
+      const trade = document.getElementById("aTrade").value;
+      const kind = document.getElementById("aKind").value;
+      let rawTag = trade === "판매" ? document.getElementById("aTag").value.trim() : "";
+      if (rawTag && !rawTag.startsWith("#")) rawTag = "#" + rawTag;
+      const list = items();
+      list.unshift({
+        id: Date.now(),
+        trade,
+        game: document.getElementById("aGame").value,
+        kind,
+        sub: kind === "키트" ? document.getElementById("aSub").value : null,
+        title: document.getElementById("aTitle").value.trim(),
+        price: Number(document.getElementById("aPrice").value),
+        tag: rawTag,
+        nego: trade === "판매" ? document.getElementById("aNego").checked : false,
+        desc: document.getElementById("aDesc").value.trim(),
+        seller: u.nickname,
+        sellerId: u.id
+      });
+      set("jeobal_products_v4", list);
+      e.target.reset();
+      go("market");
+    }
+
+    function renderNav() {
+      const u = me(), nav = document.getElementById("nav");
+      nav.innerHTML = u
+        ? `${isAdmin(u)?'<span class="badge" style="background:#fef2f2;color:#dc2626;">관리자</span>':''}<strong>${esc(u.nickname)}</strong><button class="btn-outline" onclick="go('chats')">채팅목록</button><button class="btn-outline" onclick="set('roble_current_user',null);go('market')">로그아웃</button>`
+        : `<button class="btn-outline" onclick="go('login')">로그인</button><button class="btn-primary" onclick="go('signup')">회원가입</button>`;
+    }
+
+    function login(e) {
+      e.preventDefault();
+      const id = document.getElementById("lId").value.trim(), pw = document.getElementById("lPw").value;
+      if (id === ADMIN.id && pw === ADMIN.pw) { set("roble_current_user", ADMIN); return go("market"); }
+      const found = get("roble_users", []).find(u => u.id === id && u.pw === pw);
+      if (!found) { document.getElementById("lMsg").textContent = "아이디 또는 비밀번호 오류"; return; }
+      set("roble_current_user", found); go("market");
+    }
+
+    function signup(e) {
+      e.preventDefault();
+      const id = document.getElementById("sId").value.trim();
+      const users = get("roble_users", []);
+      if (id === ADMIN.id || users.some(u => u.id === id)) { document.getElementById("sMsg").textContent = "이미 사용 중인 아이디입니다."; return; }
+      const u = { id, pw: document.getElementById("sPw").value, name: document.getElementById("sName").value, nickname: document.getElementById("sNick").value, email: document.getElementById("sEmail").value, phone: document.getElementById("sPhone").value };
+      users.push(u); set("roble_users", users); set("roble_current_user", u); go("market");
+    }
+
+    function render() {
+      const q = document.getElementById("qInput").value.toLowerCase();
+      const ft = document.getElementById("fTrade").value;
+      const fg = document.getElementById("fGame").value;
+      const u = me(), adm = isAdmin(u);
+
+      const list = items().filter(p => {
+        if (ft !== "전체" && p.trade !== ft) return false;
+        if (fg !== "전체" && p.game !== fg) return false;
+        if (curKind !== "전체" && (p.kind !== curKind || (curKind === "키트" && curSub && p.sub !== curSub))) return false;
+        return p.title.toLowerCase().includes(q) || p.seller.toLowerCase().includes(q) || (p.tag && p.tag.toLowerCase().includes(q));
+      });
+
+      document.getElementById("grid").innerHTML = list.map(p => {
+        const isBuy = p.trade === "구매";
+        const isOpen = expandedIds.has(p.id);
+        const rawDesc = p.desc || "";
+        const isLong = rawDesc.length > 26;
+        const shownDesc = (!isLong || isOpen) ? esc(rawDesc) : esc(rawDesc.slice(0, 26)) + "...";
+        const showTag = !isBuy && p.tag;
+
+        return `
+          <div class="card">
+            <div>
+              <div style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:6px;">
+                <span class="badge ${isBuy?'badge-buy':'badge-sell'}">${esc(p.trade)}</span>
+                <span class="badge">${esc(p.game)}</span>
+                <span class="badge badge-kind">${esc(p.kind==='키트'&&p.sub ? `키트(${p.sub})` : p.kind)}</span>
+                ${!isBuy && p.nego ? `<span class="badge badge-nego">네고 가능</span>` : ""}
+              </div>
+              <strong style="font-size:15px;">${esc(p.title)}</strong>
+              <div class="price">${Number(p.price).toLocaleString()} 강방</div>
+              ${showTag ? `<div class="tag-line">${esc(p.tag)} <button class="btn-outline" style="padding:2px 6px; font-size:10px;" onclick="showRecentSale('${esc(p.tag)}')">최근시세</button></div>` : ""}
+              <div class="desc-box" onclick="toggleExpand(${p.id})">
+                ${shownDesc}
+                ${isLong ? `<span class="more-link">${isOpen ? "[접기]" : "[전체보기]"}</span>` : ""}
+              </div>
+            </div>
+            <div class="meta">
+              <span>${esc(p.seller)}</span>
+              <div style="display:flex; gap:4px;">
+                ${u && p.sellerId === u.id
+                  ? `<button class="btn-disabled" style="padding:4px 8px; font-size:11px;" disabled>내 글</button>`
+                  : `<button class="btn-primary" style="padding:4px 9px; font-size:11px;" onclick="startChat(${p.id})">${isBuy?'판매하기':'구매하기'}</button>`}
+                ${adm ? `<button class="btn-danger" style="padding:4px 8px; font-size:11px;" onclick="delItem(${p.id})">삭제</button>` : ""}
+              </div>
+            </div>
+          </div>`;
+      }).join("");
+    }
+
+    renderNav();
+    render();
+  </script>
+</body>
+</html>
